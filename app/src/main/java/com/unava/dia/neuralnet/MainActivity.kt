@@ -1,44 +1,41 @@
 package com.unava.dia.neuralnet
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    // going to make 3 different brains
-    private val aiAdd = NeuralNetwork() // this one can add two single-digit numbers
+    private val aiAdd = NeuralNetwork()
     private val aiMinus = NeuralNetwork()
-    private val aiMultiply = NeuralNetwork() // this one can add two numbers and multiply the result by 2
+    private val aiMultiply = NeuralNetwork()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        init()
+        this.init()
     }
 
-    private fun init () {
+    private fun init() {
         this.trainSet(aiAdd, Int::plus)
         this.trainSet(aiMinus, Int::minus)
         this.trainSet(aiMultiply, Int::times)
-        //Int::div
 
         btLearnAdd.setOnClickListener {
-            // HELP ME SOMEONE TO REFACTOR THIS SHIT
-            val a = etFirst.text.trim().toString().toInt()
-            val b = etSecond.text.trim().toString().toInt()
+            // HELP ME SOMEONE REFACTOR THIS SHIT
+            val a = etFirst.getInt()
+            val b = etSecond.getInt()
             aiAdd.train(a, b, a + b)
         }
         btLearnMultiply.setOnClickListener {
-            val a = etFirst.text.trim().toString().toInt()
-            val b = etSecond.text.trim().toString().toInt()
+            val a = etFirst.getInt()
+            val b = etSecond.getInt()
             aiMultiply.train(a, b, a * b)
         }
         btLearnMinus.setOnClickListener {
-            val a = etFirst.text.trim().toString().toInt()
-            val b = etSecond.text.trim().toString().toInt()
+            val a = etFirst.getInt()
+            val b = etSecond.getInt()
             aiMinus.train(a, b, a - b)
         }
         btAdd.setOnClickListener {
@@ -52,6 +49,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun EditText.getInt() : Int {
+        return text.trim().toString().toInt()
+    }
+
+    /**
+     * Calculates user`s input
+     *
+     * @param ai One of 3 neural networks
+     * @param sign Operation sign to show
+     */
     private fun calculate(ai: NeuralNetwork, sign: String) {
         tvSign.text = sign
         val a = etFirst.text.trim().toString().toInt()
@@ -60,13 +67,20 @@ class MainActivity : AppCompatActivity() {
         tvResult.text = c.toString()
     }
 
+    /**
+     * Trains [ai] according to operation input
+     *
+     * @param ai One of 3 neural networks
+     * @param op Operation type
+     *
+     */
     private fun trainSet(ai: NeuralNetwork, op: (Int, Int) -> Int) {
         repeat((0..10000).count()) {
-            for(i in 1..10){
+            for (i in 1..10) {
                 val x = i + 1
                 ai.train(i, x, op(i, x))
             }
         }
-        Toast.makeText(applicationContext, "finished$op", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(applicationContext, "finished$op", Toast.LENGTH_SHORT).show()
     }
 }
